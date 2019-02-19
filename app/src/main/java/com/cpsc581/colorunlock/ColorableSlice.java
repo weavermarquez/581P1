@@ -56,4 +56,9 @@ public class ColorableSlice {
         });
         animator.start();
     }
+
+    public void setFill(int color)
+    {
+        slice.setFillColor(color);
+    }
 }
