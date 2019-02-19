@@ -11,18 +11,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleType="fitXY"
-        app:srcCompat="@drawable/ic_imageslices"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp"
-        tools:srcCompat="@drawable/ic_imageslices" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_complexslices"
+        tools:srcCompat="@drawable/ic_complexslices" />
+
     <ImageView
         android:id="@+id/imageMask"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scaleType="fitXY"
-        app:srcCompat="@drawable/ic_imageslicesmask"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp"
         android:visibility="invisible"
-        tools:srcCompat="@drawable/ic_imageslicesmask" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_complexslices_mask"
+        tools:srcCompat="@drawable/ic_complexslices_mask" />
 </android.support.constraint.ConstraintLayout>

@@ -1,5 +1,7 @@
 package com.cpsc581.colorunlock;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -21,10 +23,9 @@ public class MainActivity extends AppCompatActivity {
     static String TAG = "TouchUnlock";
     ImageView sliceImage;
     ImageView sliceMask;
-    VectorDrawableCompat.VFullPath slice0;
-    VectorDrawableCompat.VFullPath slice1;
-    VectorDrawableCompat.VFullPath slice2;
+    ColorableSlice[] slices;
 
+    int selectedColor = Color.parseColor("#00ff99");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +36,35 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         sliceImage = findViewById(R.id.imageView);
         sliceMask = findViewById(R.id.imageMask);
-        VectorChildFinder vectorFinder = new VectorChildFinder(this, R.drawable.ic_imageslices, sliceImage);
-        slice0 = vectorFinder.findPathByName("slice_0");
-        slice1 = vectorFinder.findPathByName("slice_1");
-        slice2 = vectorFinder.findPathByName("slice_2");
+        sliceImage.setImageResource(R.drawable.ic_complexslices);
+        sliceMask.setImageResource(R.drawable.ic_complexslices_mask);
+        VectorChildFinder vectorFinder = new VectorChildFinder(this, R.drawable.ic_complexslices, sliceImage);
+        slices = new ColorableSlice[3];
+        slices[0] = new ColorableSlice(sliceImage, sliceMask, vectorFinder.findPathByName("slice_0"), Color.parseColor("#ff0000"));
+        slices[1] = new ColorableSlice(sliceImage, sliceMask, vectorFinder.findPathByName("slice_1"), Color.parseColor("#00ff00"));
+        slices[2] = new ColorableSlice(sliceImage, sliceMask, vectorFinder.findPathByName("slice_2"), Color.parseColor("#0000ff"));
+
+        slices[0].slice.setStrokeWidth(1f);
+        slices[1].slice.setStrokeWidth(1f);
+        slices[2].slice.setStrokeWidth(1f);
+
+    }
+
+    @Override
+    public void onStart() {
+
+        super.onStart();
+
+        for (ColorableSlice slice: slices)
+        {
+            slice.animatePath();
+        }
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
     }
 
     @Override
@@ -50,22 +76,27 @@ public class MainActivity extends AppCompatActivity {
         int evX = (int)event.getX();
         int evY = (int)event.getY();
 
-        if(action == MotionEvent.ACTION_DOWN) {
-
-            int touchColor = getMaskColor(R.id.imageMask, evX, evY);
-
-            if (closeMatch(touchColor, Color.parseColor("#ff0000"), 25)) {
-                slice0.setFillColor(Color.RED);
-
-            } else if (closeMatch(touchColor, Color.parseColor("#00ff00"), 25)) {
-                slice1.setFillColor(Color.GREEN);
-            }else if (closeMatch(touchColor, Color.parseColor("#0000ff"), 25)) {
-                slice2.setFillColor(Color.BLUE);
-            }
-            sliceImage.invalidate();
+        switch(action)
+        {
+            case MotionEvent.ACTION_UP:
+                fillSlice(evX, evY);
+                break;
         }
 
         return true;
+    }
+
+    public void fillSlice(int x, int y)
+    {
+        for (ColorableSlice slice : slices) {
+
+            if(closeMatch(getMaskColor(R.id.imageMask,x, y), slice.maskColor,25))
+            {
+                slice.animateFill(selectedColor);
+                break;
+            }
+
+        }
     }
 
     public int getMaskColor(int hotspot, int x, int y)
@@ -73,6 +104,11 @@ public class MainActivity extends AppCompatActivity {
         sliceMask.setDrawingCacheEnabled(true);
         Bitmap hotspots = Bitmap.createBitmap(sliceMask.getDrawingCache());
         sliceMask.setDrawingCacheEnabled(false);
+
+        if(y > hotspots.getHeight() || x > hotspots.getWidth())
+        {
+            return -1;
+        }
 
         return hotspots.getPixel(x, y);
     }
