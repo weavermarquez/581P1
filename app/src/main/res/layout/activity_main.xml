@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -9,8 +10,9 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="590dp"
         android:scaleType="fitXY"
+        app:layout_constraintBottom_toTopOf="@+id/colorPalette"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -20,7 +22,7 @@
     <ImageView
         android:id="@+id/imageMask"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="590dp"
         android:scaleType="fitXY"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,8 +33,11 @@
 
     <LinearLayout
         android:id="@+id/colorPalette"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageView"
+        android:layout_alignParentBottom="true"
+        android:background="#808080"
         android:backgroundTint="@color/colorAccent"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -118,4 +123,4 @@
             tools:src="@drawable/ic_colorblob" />
     </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

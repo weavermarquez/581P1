@@ -1,6 +1,5 @@
 <vector android:height="24dp" android:viewportHeight="56.961014"
     android:viewportWidth="56.961014" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:name="blob" android:fillAlpha="1" android:fillColor="#ffffff"
-        android:pathData="M28.4805,28.4805m-28.3482,0a28.3482,28.3482 0,1 1,56.6964 0a28.3482,28.3482 0,1 1,-56.6964 0"
-        android:strokeAlpha="1" android:strokeColor="#000000" android:strokeWidth="0.26458332"/>
+        android:pathData="M28.4805,28.4805m-28.3482,0a28.3482,28.3482 0,1 1,56.6964 0a28.3482,28.3482 0,1 1,-56.6964 0"/>
 </vector>

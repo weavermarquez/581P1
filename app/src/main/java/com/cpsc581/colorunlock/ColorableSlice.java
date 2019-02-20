@@ -1,5 +1,6 @@
 package com.cpsc581.colorunlock;
 
+import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.FloatEvaluator;
 import android.animation.ValueAnimator;
@@ -10,22 +11,24 @@ import com.devs.vectorchildfinder.VectorDrawableCompat;
 
 import java.nio.file.Path;
 
-public class ColorableSlice {
+public class ColorableSlice{
 
     public ImageView parent;
     public ImageView mask;
     public VectorDrawableCompat.VFullPath slice;
     public int maskColor;
+    public int id;
 
-    public ColorableSlice(ImageView parent, ImageView mask, VectorDrawableCompat.VFullPath slice, int maskColor)
+    public ColorableSlice(int id, ImageView parent, ImageView mask, VectorDrawableCompat.VFullPath slice, int maskColor)
     {
         this.parent = parent;
         this.mask = mask;
         this.slice = slice;
         this.maskColor = maskColor;
+        this.id = id;
     }
 
-    public void animateFill(int toColor)
+    public Animator animateFill(int toColor)
     {
         int from = slice.getFillColor();
         ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), from, toColor);
@@ -40,6 +43,8 @@ public class ColorableSlice {
 
         });
         animator.start();
+
+        return animator;
     }
 
     public void animatePath()

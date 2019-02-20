@@ -32,7 +32,6 @@ public class PaletteColor {
 
     public void selectColor()
     {
-        //TODO Change this somehow?
         path.setFillAlpha(0.25f);
         paletteView.invalidate();
     }
