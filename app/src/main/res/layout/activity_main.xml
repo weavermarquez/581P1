@@ -123,4 +123,34 @@
             tools:src="@drawable/ic_colorblob" />
     </LinearLayout>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorCheck"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom|end"
+        android:layout_marginStart="344dp"
+        android:layout_marginBottom="157dp"
+        android:src="@drawable/check"
+        app:layout_anchor="@id/imageView"
+        app:layout_anchorGravity="bottom|right|end" />
+    
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/confirmation"
+        android:src="@drawable/confirm"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/denied"
+        android:src="@drawable/denied"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
+
 </RelativeLayout>

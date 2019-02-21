@@ -1,15 +1,23 @@
 package com.cpsc581.colorunlock;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
+import android.animation.FloatEvaluator;
 import android.animation.ValueAnimator;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
+import android.media.Image;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DrawableUtils;
@@ -19,19 +27,33 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
     static String TAG = "TouchUnlock";
 
     boolean firstLoad = true;
+    boolean settingPattern = false;
+
+    FloatingActionButton fab;
+    int patternLength;
 
     ImageView sliceImage;
     ImageView sliceMask;
@@ -42,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
     int selectedColor = Color.TRANSPARENT;
 
     ImageView pointerImage;
+    ImageView confirmed;
+    ImageView denied;
 
     LockPattern key;
     LockPattern attempt = new LockPattern();
@@ -62,6 +86,19 @@ public class MainActivity extends AppCompatActivity {
         sliceMask = findViewById(R.id.imageMask);
         sliceImage.setImageResource(R.drawable.ic_complexslices);
         sliceMask.setImageResource(R.drawable.ic_complexslices_mask);
+        fab = findViewById(R.id.fab);
+        confirmed = findViewById(R.id.confirmation);
+        confirmed.setVisibility(View.INVISIBLE);
+        denied = findViewById(R.id.denied);
+        denied.setVisibility(View.INVISIBLE);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setPattern(view);
+            }
+        });
+        fab.hide();
 
         //Get paths
         VectorChildFinder vectorFinder = new VectorChildFinder(this, R.drawable.ic_complexslices, sliceImage);
@@ -84,14 +121,53 @@ public class MainActivity extends AppCompatActivity {
         colorPalette[4] = new PaletteColor((ImageView)findViewById(R.id.color4), availableColors[4]);
         colorPalette[5] = new PaletteColor((ImageView)findViewById(R.id.color5), availableColors[5]);
 
-        //Generate Pattern which unlocks the device
-        key = new LockPattern();
-        key.addNode(new PatternNode(0, Color.GREEN));
-        key.addNode(new PatternNode(2, Color.BLUE));
-        key.addNode(new PatternNode(1, Color.CYAN));
+        //Load key data if available, otherwise, set key data
+        ArrayList<PatternNode> temp =  loadData("pass");
+        if(temp == null){
+            key = new LockPattern();
+            setPatternAlert();
+        }
+        else{
+            key = new LockPattern();
+            key.setPattern(temp);
+        }
 
         vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
     }
+
+    public void generatePattern(){
+        settingPattern = true;
+        fab.show();
+    }
+
+    public void setPattern(View view) {
+        reset();
+        for (ColorableSlice slice : slices) {
+            slice.animateFill(Color.WHITE);
+        }
+        settingPattern = false;
+        patternLength = key.getPatternLength();
+        saveData(key.getPattern(), "pass");
+        fab.hide();
+    }
+
+    private void saveData(ArrayList<PatternNode> pn, String key1){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(pn);
+        editor.putString(key1, json);
+        editor.apply();
+    }
+
+    private ArrayList<PatternNode> loadData(String key1){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(key1,null);
+        Type type = new TypeToken<ArrayList<PatternNode>>(){}.getType();
+        return (ArrayList<PatternNode>) gson.fromJson(json, type);
+    }
+
 
     @Override
     public void onStart()
@@ -104,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
             }
             firstLoad = false;
         }
+
     }
 
     @Override
@@ -120,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
                 slice.setFill(Color.WHITE);
             }
         }
+        denied.setVisibility(View.INVISIBLE);
         attempt.clearPattern();
     }
 
@@ -222,41 +300,47 @@ public class MainActivity extends AppCompatActivity {
 
                 if (closeMatch(getMaskColor(R.id.imageMask, x, y), slice.maskColor, 25)) {
                     Animator a = slice.animateFill(selectedColor);
-                    attempt.addNode(new PatternNode(slice.id, selectedColor));
-                    a.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
+                    if (!settingPattern) {
+                        attempt.addNode(new PatternNode(slice.id, selectedColor));
+                        a.addListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
 
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-
-                            if(key.getPatternLength() == attempt.getPatternLength()) {
-                                if (attempt.validateAgainst(key)) {
-                                    //UNLOCKED!
-                                    finish();
-                                }else {
-                                    //TODO Give Feedback so user knows they are wrong
-                                    vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
-                                    reset();
+                            }
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                if (key.getPatternLength() == attempt.getPatternLength()) {
+                                    if (attempt.validateAgainst(key)) {
+                                        //UNLOCKED!
+                                        Toast toast = Toast.makeText(getApplicationContext(), "You're in!", Toast.LENGTH_SHORT);
+                                        toast.show();
+                                        confirmed.setVisibility(View.VISIBLE);
+                                        finish();
+                                    } else {
+                                        //TODO Give Feedback so user knows they are wrong
+                                        vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+                                        denied.setVisibility(View.VISIBLE);
+                                        reset();
+                                    }
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
 
-                        }
+                            }
 
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
+                            @Override
+                            public void onAnimationRepeat(Animator animation) {
 
-                        }
-                    });
-                    break;
+                            }
+                        });
+                        break;
+                    }
+                    else{
+                        key.addNode(new PatternNode(slice.id, selectedColor));
+                    }
                 }
-
             }
         }
     }
@@ -283,4 +367,23 @@ public class MainActivity extends AppCompatActivity {
         return true;
     } // end match
 
+    public void setPatternAlert(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        String message = "No Pattern Set. Set Pattern?";
+        builder.setMessage(message)
+                .setCancelable(true)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        generatePattern();
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
 }

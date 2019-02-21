@@ -2,8 +2,10 @@ package com.cpsc581.colorunlock;
 
 import android.util.Log;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class LockPattern {
 
@@ -24,6 +26,10 @@ public class LockPattern {
     {
         return pattern.size();
     }
+
+    public void setPattern(ArrayList<PatternNode> pattern){ this.pattern = pattern; }
+
+    public ArrayList<PatternNode> getPattern(){ return this.pattern; }
 
     public void addNode(PatternNode node)
     {
