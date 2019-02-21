@@ -65,5 +65,6 @@ public class ColorableSlice{
     public void setFill(int color)
     {
         slice.setFillColor(color);
+        parent.invalidate();
     }
 }

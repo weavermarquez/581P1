@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ArgbEvaluator;
 import android.animation.FloatEvaluator;
+import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.media.Image;
+import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -33,6 +35,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.devs.vectorchildfinder.VectorChildFinder;
@@ -42,12 +45,18 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
     static String TAG = "TouchUnlock";
+
+    TextView date;
 
     boolean firstLoad = true;
     boolean settingPattern = false;
@@ -72,6 +81,13 @@ public class MainActivity extends AppCompatActivity {
 
     Vibrator vibrator;
 
+    VectorDrawableCompat.VFullPath checkmarkPath;
+    VectorDrawableCompat.VFullPath checkOutline;
+    VectorDrawableCompat.VFullPath deniedPath1;
+    VectorDrawableCompat.VFullPath deniedPath2;
+    VectorDrawableCompat.VFullPath deniedOutline1;
+    VectorDrawableCompat.VFullPath deniedOutline2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +95,12 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getSupportActionBar().hide();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+
         setContentView(R.layout.activity_main);
+
+//        date = findViewById(R.id.dateView);
+
 
         //Get View References and set source and mask
         sliceImage = findViewById(R.id.imageView);
@@ -133,6 +154,26 @@ public class MainActivity extends AppCompatActivity {
         }
 
         vibrator = (Vibrator)getSystemService(VIBRATOR_SERVICE);
+
+        VectorChildFinder vfc = new VectorChildFinder(this, R.drawable.ic_check, confirmed);
+        checkmarkPath = vfc.findPathByName("checkmark");
+        checkOutline = vfc.findPathByName("outline");
+        checkmarkPath.setTrimPathEnd(0f);
+        checkOutline.setTrimPathEnd(0f);
+
+        VectorChildFinder vcf = new VectorChildFinder(this, R.drawable.ic_x, denied);
+        deniedPath1 = vcf.findPathByName("part1");
+        deniedPath2 = vcf.findPathByName("part2");
+        deniedOutline1 = vcf.findPathByName("outline1");
+        deniedOutline2 = vcf.findPathByName("outline2");
+        deniedPath1.setTrimPathEnd(0f);
+        deniedPath1.setStrokeAlpha(0f);
+        deniedPath2.setTrimPathEnd(0f);
+        deniedPath2.setStrokeAlpha(0f);
+        deniedOutline1.setTrimPathEnd(0f);
+        deniedOutline1.setStrokeAlpha(0f);
+        deniedOutline2.setTrimPathEnd(0f);
+        deniedOutline2.setStrokeAlpha(0f);
     }
 
     public void generatePattern(){
@@ -142,9 +183,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void setPattern(View view) {
         reset();
-        for (ColorableSlice slice : slices) {
-            slice.animateFill(Color.WHITE);
-        }
         settingPattern = false;
         patternLength = key.getPatternLength();
         saveData(key.getPattern(), "pass");
@@ -186,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause(){
         super.onPause();
-
         reset();
     }
 
@@ -198,12 +235,20 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         denied.setVisibility(View.INVISIBLE);
+        deniedPath1.setStrokeAlpha(0f);
+        deniedPath2.setStrokeAlpha(0f);
+        deniedOutline1.setStrokeAlpha(0f);
+        deniedOutline2.setStrokeAlpha(0f);
         attempt.clearPattern();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+//        String d = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(new Date());
+//
+//        date.setText(d);
     }
 
     @Override
@@ -312,15 +357,9 @@ public class MainActivity extends AppCompatActivity {
                                 if (key.getPatternLength() == attempt.getPatternLength()) {
                                     if (attempt.validateAgainst(key)) {
                                         //UNLOCKED!
-                                        Toast toast = Toast.makeText(getApplicationContext(), "You're in!", Toast.LENGTH_SHORT);
-                                        toast.show();
-                                        confirmed.setVisibility(View.VISIBLE);
-                                        finish();
+                                        unlockPhone();
                                     } else {
-                                        //TODO Give Feedback so user knows they are wrong
-                                        vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
-                                        denied.setVisibility(View.VISIBLE);
-                                        reset();
+                                        invalidPass();
                                     }
                                 }
                             }
@@ -343,6 +382,128 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void invalidPass()
+    {
+        ValueAnimator va1 = ValueAnimator.ofObject(new FloatEvaluator(), 0.1f, 1f);
+        final ValueAnimator va2 = ValueAnimator.ofObject(new FloatEvaluator(), 0.1f, 1f);
+        va1.setDuration(125);
+        va2.setDuration(125);
+        va1.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                deniedPath1.setTrimPathEnd((float)animation.getAnimatedValue());
+                deniedOutline1.setTrimPathEnd((float) animation.getAnimatedValue());
+                denied.invalidate();
+            }
+        });
+        va2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                deniedPath2.setTrimPathEnd((float)animation.getAnimatedValue());
+                deniedOutline2.setTrimPathEnd((float) animation.getAnimatedValue());
+                denied.invalidate();
+            }
+        });
+        va1.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                deniedPath1.setStrokeAlpha(1f);
+                deniedOutline1.setStrokeAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+                va2.start();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        va2.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                deniedPath2.setStrokeAlpha(1f);
+                deniedOutline2.setStrokeAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        reset();
+                    }
+                }, 250);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        denied.setVisibility(View.VISIBLE);
+        va1.start();
+
+    }
+
+    private void unlockPhone() {
+        ValueAnimator va = ValueAnimator.ofObject(new FloatEvaluator(), 0.1f, 1f);
+        va.setDuration(250);
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                checkmarkPath.setTrimPathEnd((float)animation.getAnimatedValue());
+                checkOutline.setTrimPathEnd((float)animation.getAnimatedValue());
+                confirmed.invalidate();
+            }
+        });
+        va.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+                //show checkmark for .25 seconds before closing app
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        finish();
+                    }
+                }, 250);
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        confirmed.setVisibility(View.VISIBLE);
+        va.start();
     }
 
     public int getMaskColor(int hotspot, int x, int y) {
@@ -369,18 +530,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void setPatternAlert(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String message = "No Pattern Set. Set Pattern?";
+        String message = "Please set an unlock pattern";
         builder.setMessage(message)
-                .setCancelable(true)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setCancelable(false)
+                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         generatePattern();
                         dialog.dismiss();
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
                     }
                 });
         final AlertDialog alert = builder.create();

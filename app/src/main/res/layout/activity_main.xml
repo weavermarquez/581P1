@@ -10,7 +10,7 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
-        android:layout_height="590dp"
+        android:layout_height="wrap_content"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toTopOf="@+id/colorPalette"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,7 +22,7 @@
     <ImageView
         android:id="@+id/imageMask"
         android:layout_width="wrap_content"
-        android:layout_height="590dp"
+        android:layout_height="wrap_content"
         android:scaleType="fitXY"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -123,34 +123,70 @@
             tools:src="@drawable/ic_colorblob" />
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/confirmation"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_check" />
+
+    <ImageView
+        android:id="@+id/denied"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_x" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorCheck"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom|end"
-        android:layout_marginStart="344dp"
-        android:layout_marginBottom="157dp"
+        android:layout_above="@+id/colorPalette"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="@dimen/fabMargin"
+        android:layout_marginTop="@dimen/fabMargin"
+        android:layout_marginEnd="@dimen/fabMargin"
+        android:layout_marginBottom="@dimen/fabMargin"
         android:src="@drawable/check"
-        app:layout_anchor="@id/imageView"
-        app:layout_anchorGravity="bottom|right|end" />
-    
-    <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/confirmation"
-        android:src="@drawable/confirm"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
+        android:tint="@color/White"
+        app:backgroundTint="@color/colorCheck"
+        app:fabSize="auto" />
 
-    <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/denied"
-        android:src="@drawable/denied"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
+    <!--<TextClock-->
+        <!--android:id="@+id/digitalClock"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerVertical="false"-->
+        <!--android:layout_marginTop="50dip"-->
+        <!--android:fontFamily="sans-serif"-->
+        <!--android:format12Hour="h:mm"-->
+        <!--android:format24Hour="hh:mm"-->
+        <!--android:gravity="center"-->
+        <!--android:shadowColor="@color/Black"-->
+        <!--android:shadowDx="2"-->
+        <!--android:shadowDy="2"-->
+        <!--android:shadowRadius="20"-->
+        <!--android:textAlignment="center"-->
+        <!--android:textColor="@color/White"-->
+        <!--android:textSize="50sp"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent" />-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/dateView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@+id/digitalClock"-->
+        <!--android:fontFamily="sans-serif"-->
+        <!--android:gravity="center"-->
+        <!--android:shadowColor="@color/Black"-->
+        <!--android:shadowDx="2"-->
+        <!--android:shadowDy="2"-->
+        <!--android:shadowRadius="20"-->
+        <!--android:textAlignment="center"-->
+        <!--android:textColor="@color/White"-->
+        <!--android:textSize="30sp"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent"/>-->
 
 </RelativeLayout>

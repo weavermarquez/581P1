@@ -1,0 +1,15 @@
+<vector android:height="42dp" android:viewportHeight="41.530624"
+    android:viewportWidth="57.483807" android:width="57dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path
+        android:name="outline"
+        android:fillColor="#00000000"
+        android:pathData="m7.5717,18.9119 l13.6071,15.119 28.7262,-26.4583"
+        android:strokeAlpha="1" android:strokeColor="#000000"
+        android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeWidth="15"/>
+    <path
+        android:name="checkmark"
+        android:fillColor="#00000000"
+        android:pathData="m7.5717,18.9119 l13.6071,15.119 28.7262,-26.4583"
+        android:strokeAlpha="1" android:strokeColor="#00d700"
+        android:strokeLineCap="round" android:strokeLineJoin="round" android:strokeWidth="13.22916698"/>
+</vector>
