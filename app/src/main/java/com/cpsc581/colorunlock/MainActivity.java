@@ -94,8 +94,8 @@ public class MainActivity extends AppCompatActivity {
         //Basic Window formatting
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getSupportActionBar().hide();
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
         setContentView(R.layout.activity_main);
 
@@ -293,14 +293,14 @@ public class MainActivity extends AppCompatActivity {
     private void createPointer(int x, int y)
     {
         pointerImage = new ImageView(this);
-        pointerImage.setImageResource(R.drawable.ic_colorblob);
+        pointerImage.setImageResource(R.drawable.ic_dragblob);
         pointerImage.setColorFilter(selectedColor);
         ((RelativeLayout)findViewById(R.id.mainLayout)).addView(pointerImage);
         pointerImage.setScaleType(ImageView.ScaleType.CENTER);
-        pointerImage.setScaleX(2f);
-        pointerImage.setScaleY(2f);
+        pointerImage.setScaleX(1f);
+        pointerImage.setScaleY(1f);
         pointerImage.setX(x - (pointerImage.getWidth()/2f));
-        pointerImage.setY(y - (pointerImage.getHeight()/2f));
+        pointerImage.setY(y - (pointerImage.getHeight()));
         
     }
     
@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
     {
         if(pointerImage != null) {
             pointerImage.setX(x - (pointerImage.getWidth() / 2f));
-            pointerImage.setY(y - (pointerImage.getHeight() / 2f));
+            pointerImage.setY(y - (pointerImage.getHeight()));
         }
     }
 
