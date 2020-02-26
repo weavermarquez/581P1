@@ -1,19 +1,12 @@
 package com.cpsc581.colorunlock;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ArgbEvaluator;
 import android.animation.FloatEvaluator;
-import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
-import android.media.Image;
 import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
@@ -22,35 +15,20 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DrawableUtils;
-import android.support.v7.widget.LinearLayoutCompat;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -67,10 +45,14 @@ public class MainActivity extends AppCompatActivity {
     ImageView sliceImage;
     ImageView sliceMask;
     ColorableSlice[] slices;
-    PaletteColor[] colorPalette;
-    int[] availableColors = {Color.MAGENTA,Color.RED, Color.YELLOW, Color.GREEN, Color.CYAN, Color.BLUE};
+    //PaletteColor[] colorPalette;
+    PaletteFruit[] fruitPalette;
 
-    int selectedColor = Color.TRANSPARENT;
+    Fruit[] availableFruit = {Fruit.DRAGONFRUIT, Fruit.STRAWBERRY, Fruit.BANANA, Fruit.APPLE, Fruit.BLUEBERRY, Fruit.ACAI};
+    //int[] availableColors = {Color.MAGENTA,Color.RED, Color.YELLOW, Color.GREEN, Color.CYAN, Color.BLUE};
+
+    Fruit selectedFruit = Fruit.DRAGONFRUIT;
+    //int selectedColor = Color.TRANSPARENT;
 
     ImageView pointerImage;
     ImageView confirmed;
@@ -89,6 +71,43 @@ public class MainActivity extends AppCompatActivity {
     VectorDrawableCompat.VFullPath deniedOutline2;
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
+    }
+
+    private void hideSystemUI() {
+        // Enables regular immersive mode.
+        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+    // Shows the system bars by removing all the flags
+    // except for the ones that make the content appear under the system bars.
+    private void showSystemUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Basic Window formatting
@@ -101,6 +120,14 @@ public class MainActivity extends AppCompatActivity {
 
 //        date = findViewById(R.id.dateView);
 
+        /*
+        //Hide both navigation and status bar
+        View decorView = getWindow().getDecorView();
+
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+        */
 
         //Get View References and set source and mask
         sliceImage = findViewById(R.id.imageView);
@@ -124,6 +151,9 @@ public class MainActivity extends AppCompatActivity {
         //Get paths
         VectorChildFinder vectorFinder = new VectorChildFinder(this, R.drawable.ic_complexslices, sliceImage);
         slices = new ColorableSlice[3];
+
+        //ImageView bowlImage = findViewById(R.drawable.bowl);
+        //slices[0] = new ColorableSlice(0, bowlImage, sliceMask, vectorFinder.findPathByName("slice_0"), Color.parseColor("#ff0000"));
         slices[0] = new ColorableSlice(0, sliceImage, sliceMask, vectorFinder.findPathByName("slice_0"), Color.parseColor("#ff0000"));
         slices[1] = new ColorableSlice(1, sliceImage, sliceMask, vectorFinder.findPathByName("slice_1"), Color.parseColor("#00ff00"));
         slices[2] = new ColorableSlice(2, sliceImage, sliceMask, vectorFinder.findPathByName("slice_2"), Color.parseColor("#0000ff"));
@@ -133,7 +163,17 @@ public class MainActivity extends AppCompatActivity {
         slices[1].slice.setStrokeWidth(1f);
         slices[2].slice.setStrokeWidth(1f);
 
+
+        fruitPalette = new PaletteFruit[6];
+        fruitPalette[0] = new PaletteFruit((ImageView)findViewById(R.id.fruit0), availableFruit[0]);
+        fruitPalette[1] = new PaletteFruit((ImageView)findViewById(R.id.fruit1), availableFruit[1]);
+        fruitPalette[2] = new PaletteFruit((ImageView)findViewById(R.id.fruit2), availableFruit[2]);
+        fruitPalette[3] = new PaletteFruit((ImageView)findViewById(R.id.fruit3), availableFruit[3]);
+        fruitPalette[4] = new PaletteFruit((ImageView)findViewById(R.id.fruit4), availableFruit[4]);
+        fruitPalette[5] = new PaletteFruit((ImageView)findViewById(R.id.fruit5), availableFruit[5]);
+
         //Gross code to build the color palette
+        /*
         colorPalette = new PaletteColor[6];
         colorPalette[0] = new PaletteColor((ImageView)findViewById(R.id.color0), availableColors[0]);
         colorPalette[1] = new PaletteColor((ImageView)findViewById(R.id.color1), availableColors[1]);
@@ -141,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
         colorPalette[3] = new PaletteColor((ImageView)findViewById(R.id.color3), availableColors[3]);
         colorPalette[4] = new PaletteColor((ImageView)findViewById(R.id.color4), availableColors[4]);
         colorPalette[5] = new PaletteColor((ImageView)findViewById(R.id.color5), availableColors[5]);
+        */
 
         //Load key data if available, otherwise, set key data
         ArrayList<PatternNode> temp =  loadData("pass");
@@ -216,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
             for (ColorableSlice slice : slices) {
                 slice.animatePath();
             }
-            firstLoad = false;
+            firstLoad = true;
         }
 
     }
@@ -231,6 +272,22 @@ public class MainActivity extends AppCompatActivity {
         if (slices != null) {
 
             for (ColorableSlice slice : slices) {
+                slice.setFill(Fruit.EMPTY);
+            }
+        }
+        denied.setVisibility(View.INVISIBLE);
+        deniedPath1.setStrokeAlpha(0f);
+        deniedPath2.setStrokeAlpha(0f);
+        deniedOutline1.setStrokeAlpha(0f);
+        deniedOutline2.setStrokeAlpha(0f);
+        attempt.clearPattern();
+    }
+
+    /*
+    private void reset() {
+        if (slices != null) {
+
+            for (ColorableSlice slice : slices) {
                 slice.setFill(Color.WHITE);
             }
         }
@@ -241,6 +298,7 @@ public class MainActivity extends AppCompatActivity {
         deniedOutline2.setStrokeAlpha(0f);
         attempt.clearPattern();
     }
+    */
 
     @Override
     public void onResume() {
@@ -294,6 +352,20 @@ public class MainActivity extends AppCompatActivity {
     {
         pointerImage = new ImageView(this);
         pointerImage.setImageResource(R.drawable.ic_dragblob);
+        pointerImage.setColorFilter(selectedFruit.toInt());
+        ((RelativeLayout)findViewById(R.id.mainLayout)).addView(pointerImage);
+        pointerImage.setScaleType(ImageView.ScaleType.CENTER);
+        pointerImage.setScaleX(1f);
+        pointerImage.setScaleY(1f);
+        pointerImage.setX(x - (pointerImage.getWidth()/2f));
+        pointerImage.setY(y - (pointerImage.getHeight()));
+    }
+
+    /*
+    private void createPointer(int x, int y)
+    {
+        pointerImage = new ImageView(this);
+        pointerImage.setImageResource(R.drawable.ic_dragblob);
         pointerImage.setColorFilter(selectedColor);
         ((RelativeLayout)findViewById(R.id.mainLayout)).addView(pointerImage);
         pointerImage.setScaleType(ImageView.ScaleType.CENTER);
@@ -302,16 +374,16 @@ public class MainActivity extends AppCompatActivity {
         pointerImage.setX(x - (pointerImage.getWidth()/2f));
         pointerImage.setY(y - (pointerImage.getHeight()));
         
-    }
-    
+    }*/
+
     private boolean selectColor(int evX, int evY)
     {
-        for (PaletteColor pc: colorPalette)
+        for (PaletteFruit pf: fruitPalette)
         {
-            if(pc.getHitRect().contains(evX, evY))
+            if(pf.getHitRect().contains(evX, evY))
             {
-                pc.selectColor();
-                selectedColor = pc.color;
+                pf.selectFruit();
+                selectedFruit = pf.fruit; //What is invertHex?
                 return true;
             }
         }
@@ -319,6 +391,33 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    /*
+    private boolean selectColor(int evX, int evY)
+    {
+        for (PaletteColor pc: colorPalette)
+        {
+            if(pc.getHitRect().contains(evX, evY))
+            {
+                pc.selectColor();
+                selectedColor = invertHex(pc.color);
+                return true;
+            }
+        }
+
+        return false;
+    }*/
+
+    private void unselectAllColors()
+    {
+        selectedFruit = Fruit.EMPTY;
+
+        for (PaletteFruit pf: fruitPalette)
+        {
+            pf.unselectFruit();
+        }
+    }
+
+    /*
     private void unselectAllColors()
     {
         selectedColor = Color.TRANSPARENT;
@@ -328,6 +427,7 @@ public class MainActivity extends AppCompatActivity {
             pc.unselectColor();
         }
     }
+    */
 
     private void moveColorIcon(int x, int y)
     {
@@ -337,6 +437,58 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void fillSlice(int x, int y) {
+
+        if(selectedFruit != Fruit.EMPTY) {
+
+            for (ColorableSlice slice : slices) {
+
+                if (closeMatch(getMaskColor(R.id.imageMask, x, y), slice.maskColor, 25)) {
+
+                    slice.setImage(selectedFruit);
+                    /*
+                    Animator a = slice.animateFill(selectedFruit);
+                    if (!settingPattern) {
+                        attempt.addNode(new PatternNode(slice.id, selectedFruit));
+                        a.addListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+
+                            }
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                if (key.getPatternLength() == attempt.getPatternLength()) {
+                                    if (attempt.validateAgainst(key)) {
+                                        //UNLOCKED!
+                                        unlockPhone();
+                                    } else {
+                                        invalidPass();
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation) {
+
+                            }
+                        });
+                        break;
+                    }
+                    else{
+                        key.addNode(new PatternNode(slice.id, selectedFruit));
+                    }
+
+                     */
+                }
+            }
+        }
+    }
+    /*
     public void fillSlice(int x, int y) {
 
         if(selectedColor != Color.TRANSPARENT) {
@@ -383,6 +535,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+    */
 
     private void invalidPass()
     {

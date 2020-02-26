@@ -59,9 +59,9 @@
         </RelativeLayout>
 
         <LinearLayout
-            android:id="@+id/colorPalette"
+            android:id="@+id/fruitPalette"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="65dp"
             android:layout_weight="10"
             android:background="#808080"
             android:backgroundTint="@color/colorAccent"
@@ -72,7 +72,7 @@
             app:layout_constraintTop_toBottomOf="@+id/imageView">
 
             <ImageView
-                android:id="@+id/color0"
+                android:id="@+id/fruit0"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -85,7 +85,7 @@
                 tools:src="@drawable/ic_colorblob" />
 
             <ImageView
-                android:id="@+id/color1"
+                android:id="@+id/fruit1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -98,7 +98,7 @@
                 tools:src="@drawable/ic_colorblob" />
 
             <ImageView
-                android:id="@+id/color2"
+                android:id="@+id/fruit2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -111,7 +111,7 @@
                 tools:src="@drawable/ic_colorblob" />
 
             <ImageView
-                android:id="@+id/color3"
+                android:id="@+id/fruit3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -123,7 +123,7 @@
                 tools:src="@drawable/ic_colorblob" />
 
             <ImageView
-                android:id="@+id/color4"
+                android:id="@+id/fruit4"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -136,7 +136,7 @@
                 tools:src="@drawable/ic_colorblob" />
 
             <ImageView
-                android:id="@+id/color5"
+                android:id="@+id/fruit5"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

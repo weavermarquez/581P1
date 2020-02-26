@@ -7,18 +7,18 @@ import android.widget.ImageView;
 import com.devs.vectorchildfinder.VectorChildFinder;
 import com.devs.vectorchildfinder.VectorDrawableCompat;
 
-public class PaletteColor {
+public class PaletteFruit {
 
     public ImageView paletteView;
-    public int color;
+    public Fruit fruit;
     public VectorDrawableCompat.VFullPath path;
 
-    public PaletteColor(ImageView view, int color)
+    public PaletteFruit(ImageView view, Fruit fruit)
     {
-        this.color = color;
+        this.fruit = fruit;
         this.paletteView = view;
         this.path = new VectorChildFinder(paletteView.getContext(), R.drawable.ic_colorblob, paletteView).findPathByName("blob");
-        path.setFillColor(color);
+        path.setFillColor(fruit.toInt());
         paletteView.invalidate();
     }
 
@@ -29,13 +29,13 @@ public class PaletteColor {
         return r;
     }
 
-    public void selectColor()
+    public void selectFruit()
     {
         path.setFillAlpha(0.25f);
         paletteView.invalidate();
     }
 
-    public void unselectColor()
+    public void unselectFruit()
     {
         path.setFillAlpha(1f);
         paletteView.invalidate();

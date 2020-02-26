@@ -4,25 +4,21 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.FloatEvaluator;
 import android.animation.ValueAnimator;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
 import com.devs.vectorchildfinder.VectorDrawableCompat;
 
 import java.nio.file.Path;
 
-public class ColorableSlice{
-
+public class FruitableSlice {
     public ImageView parent;
     public ImageView mask;
     public VectorDrawableCompat.VFullPath slice;
     public int maskColor;
     public int id;
 
-    public ColorableSlice(int id, ImageView parent, ImageView mask, VectorDrawableCompat.VFullPath slice, int maskColor)
+    public FruitableSlice(int id, ImageView parent, ImageView mask, VectorDrawableCompat.VFullPath slice, int maskColor)
     {
         this.parent = parent;
         this.mask = mask;
@@ -130,10 +126,7 @@ public class ColorableSlice{
     }
 
     public void setImage(Fruit fruit){
-        //parent.setImageResource(fruit.toImage());
-
-        //Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.dragonfruit);
-
+        parent.setImageResource(fruit.toImage());
         mask.setImageResource(R.drawable.ic_complexslices_mask);
         parent.invalidate();
         mask.invalidate();
