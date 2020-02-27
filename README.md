@@ -1,3 +1,6 @@
+A forked/modified version of Touch to Unlock, currently.
+
+
 # TouchToUnlock
 CPSC 581 - Project 1 - Touch to Unlock
 
